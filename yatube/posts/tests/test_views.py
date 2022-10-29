@@ -1,6 +1,5 @@
 import shutil
 import tempfile
-from http import HTTPStatus
 
 from django import forms
 from django.conf import settings
@@ -90,7 +89,9 @@ class PagesTest(TestCase):
 
     def test_index_context(self):
         response = self.authorized_client.get(reverse('posts:index'))
-        self.assertIsInstance(response.context['form'].fields['image'], forms.ImageField)
+        self.assertIsInstance(
+            response.context['form'].fields['image'],
+            forms.ImageField)
         self.check_post(response.context['page_obj'][0])
 
     def test_group_post_context(self):
@@ -99,7 +100,9 @@ class PagesTest(TestCase):
                     kwargs={'slug': self.group.slug}))
         self.check_post(response.context['page_obj'][0])
         self.assertEqual(response.context['group'], self.group)
-        self.assertIsInstance(response.context['form'].fields['image'], forms.ImageField)
+        self.assertIsInstance(
+            response.context['form'].fields['image'],
+            forms.ImageField)
 
     def test_profile_context(self):
         response = self.authorized_client.get(
@@ -110,14 +113,18 @@ class PagesTest(TestCase):
         self.assertEqual(
             response.context['post_count'],
             self.post.author.posts.count())
-        self.assertIsInstance(response.context['form'].fields['image'], forms.ImageField)
+        self.assertIsInstance(
+            response.context['form'].fields['image'],
+            forms.ImageField)
 
     def test_post_detail_context(self):
         response = self.authorized_client.get(
             reverse('posts:post_detail',
                     kwargs={'post_id': self.post.id}))
         self.check_post(response.context['post'])
-        self.assertIsInstance(response.context['form_'].fields['image'], forms.ImageField)
+        self.assertIsInstance(
+            response.context['form_'].fields['image'],
+            forms.ImageField)
 
     def test_post_create_context(self):
         response = self.authorized_client.get(reverse('posts:post_create'))
@@ -136,7 +143,9 @@ class PagesTest(TestCase):
             reverse('posts:post_edit', kwargs={'post_id': self.post.id}))
         self.assertEqual(response.context['post'], self.post)
         self.assertEqual(response.context['is_edit'], True)
-        self.assertIsInstance(response.context['form'].fields['image'], forms.ImageField)
+        self.assertIsInstance(
+            response.context['form'].fields['image'],
+            forms.ImageField)
 
     def test_cache(self):
         before = self.authorized_client.get(reverse('posts:index'))

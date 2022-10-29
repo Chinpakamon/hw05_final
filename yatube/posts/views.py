@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 
-from .forms import PostForm, CommentForm, FollowForm
+from .forms import PostForm, CommentForm
 from .models import Group, Post, User, Follow
 from .utils import paginate
 
@@ -11,7 +11,8 @@ from .utils import paginate
 def index(request):
     page_index = paginate(Post.objects.all(), request)
     form = PostForm()
-    return render(request, 'posts/index.html', {'page_obj': page_index, 'form': form})
+    return render(request, 'posts/index.html',
+                  {'page_obj': page_index, 'form': form})
 
 
 @cache_page(60 * 15)
@@ -108,7 +109,8 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    following_author = Follow.objects.filter(user=request.user).values('author')
+    following_author = Follow.objects.filter(
+        user=request.user).values('author')
     post = Post.objects.filter(author=following_author)
     page_obj = paginate(request, post)
     context = {
