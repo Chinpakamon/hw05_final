@@ -3,7 +3,7 @@
 {% load cache %}
 {% block title %} Посты пользователя {{ post.author.get_full_name }}{% endblock %}
 {% block content %}
-    {% include 'posts/includes/switcher.html' %}
+    {% include 'includes/switcher.html' %}
     {% cache 20 sidebar request.user.username %}
         <h1>
             Последние обновления на сайте:
