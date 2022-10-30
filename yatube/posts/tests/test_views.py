@@ -65,34 +65,18 @@ class PagesTest(TestCase):
                 author=self.user))
         Post.objects.bulk_create(post_count)
 
-    # def test_correct_template(self):
-    #     templates_pages_names = {
-    #         reverse('posts:index'): 'posts/index.html',
-    #         reverse('posts:group_posts', kwargs={'slug': self.group.slug}):
-    #             'posts/group_list.html',
-    #         reverse('posts:profile', kwargs={'username': self.post.author}):
-    #             'posts/profile.html',
-    #         reverse('posts:post_detail', kwargs={'post_id': self.post.id}):
-    #             'posts/post_detail.html',
-    #         reverse('posts:post_create'): 'posts/create_post.html',
-    #     }
-    #     for reverse_name, template in templates_pages_names.items():
-    #         with self.subTest(template=template):
-    #             response = self.authorized_client.get(reverse_name)
-    #             self.assertTemplateUsed(response, template)
-
     def check_post(self, first_object):
         with self.subTest(first_object=first_object):
             self.assertEqual(first_object.text, self.post.text)
             self.assertEqual(first_object.author, self.post.author)
             self.assertEqual(first_object.group, self.post.group)
 
-    # def test_index_context(self):
-    #     response = self.authorized_client.get(reverse('posts:index'))
-    #     self.assertIsInstance(
-    #         response.context['form'].fields['image'],
-    #         forms.ImageField)
-    #     self.check_post(response.context['page_obj'][0])
+    def test_index_context(self):
+        response = self.authorized_client.get(reverse('posts:index'))
+        self.assertIsInstance(
+            response.context['form'].fields['image'],
+            forms.ImageField)
+        self.check_post(response.context['page_obj'][0])
 
     def test_group_post_context(self):
         response = self.authorized_client.get(
@@ -147,52 +131,61 @@ class PagesTest(TestCase):
             response.context['form'].fields['image'],
             forms.ImageField)
 
-    def test_cache(self):
-        before = self.authorized_client.get(reverse('posts:index'))
-        cache.clear()
-        after = self.authorized_client.get(reverse('posts:index'))
-        self.assertNotEqual(before, after)
+    # def test_cache(self):
+    #     post = Post.objects.create(
+    #         text='Пост для проверки',
+    #         author=self.user)
+    #     content_add = self.authorized_client.get(
+    #         reverse('posts:index')).content
+    #     post.delete()
+    #     content_delete = self.authorized_client.get(
+    #         reverse('posts:index')).content
+    #     self.assertEqual(content_add, content_delete)
+    #     cache.clear()
+    #     content_cache_clear = self.authorized_client.get(
+    #         reverse('posts:index')).content
+    #     self.assertNotEqual(content_add, content_cache_clear)
 
 
-# class TestPaginator(TestCase):
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         cls.user = User.objects.create_user(username='user')
-#         cls.group = Group.objects.create(
-#             title='Заголовок',
-#             slug='test-slug',
-#             description='Описание',
-#         )
-#
-#     def setUp(self):
-#         self.guest_client = Client()
-#         post: list = []
-#         for i in range(13):
-#             post.append(Post(
-#                 text='Тестовый пост',
-#                 group=self.group,
-#                 author=self.user))
-#         Post.objects.bulk_create(post)
-#
-#     def test_paginator(self):
-#         first_page_posts = 10
-#         second_page_posts = 3
-#         url_pages = [
-#             reverse('posts:index'),
-#             reverse('posts:group_posts',
-#                     kwargs={'slug': self.group.slug}),
-#             reverse('posts:profile',
-#                     kwargs={'username': self.user.username}),
-#         ]
-#
-#         for rev in url_pages:
-#             self.assertEqual(len(
-#                 self.guest_client.get(rev).context['page_obj']),
-#                 first_page_posts)
-#             self.assertEqual(len(
-#                 self.guest_client.get(rev + '?page=2').context['page_obj']),
-#                 second_page_posts)
+class TestPaginator(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='user')
+        cls.group = Group.objects.create(
+            title='Заголовок',
+            slug='test-slug',
+            description='Описание',
+        )
+
+    def setUp(self):
+        self.guest_client = Client()
+        post: list = []
+        for i in range(13):
+            post.append(Post(
+                text='Тестовый пост',
+                group=self.group,
+                author=self.user))
+        Post.objects.bulk_create(post)
+
+    def test_paginator(self):
+        first_page_posts = 10
+        second_page_posts = 3
+        url_pages = [
+            reverse('posts:index'),
+            reverse('posts:group_posts',
+                    kwargs={'slug': self.group.slug}),
+            reverse('posts:profile',
+                    kwargs={'username': self.user.username}),
+        ]
+
+        for rev in url_pages:
+            self.assertEqual(len(
+                self.guest_client.get(rev).context['page_obj']),
+                first_page_posts)
+            self.assertEqual(len(
+                self.guest_client.get(rev + '?page=2').context['page_obj']),
+                second_page_posts)
 
 
 class FollowTest(TestCase):
