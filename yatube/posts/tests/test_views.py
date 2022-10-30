@@ -56,7 +56,7 @@ class PagesTest(TestCase):
 
         self.author_client = Client()
         self.author_client.force_login(self.user)
-
+        cache.clear()
         post_count: list = []
         for i in range(35):
             post_count.append(Post(
@@ -75,7 +75,7 @@ class PagesTest(TestCase):
         response = self.authorized_client.get(reverse('posts:index'))
         self.assertIsInstance(
             response.context['form'].fields['image'],
-            forms.ImageField)
+            forms.fields.ImageField)
         self.check_post(response.context['page_obj'][0])
 
     def test_group_post_context(self):
@@ -160,6 +160,7 @@ class TestPaginator(TestCase):
 
     def setUp(self):
         self.guest_client = Client()
+        cache.clear()
         post: list = []
         for i in range(13):
             post.append(Post(

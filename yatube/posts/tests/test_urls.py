@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.core.cache import cache
 from django.test import TestCase, Client
 
 from ..models import Post, Group, User
@@ -29,6 +30,7 @@ class URLTests(TestCase):
         self.authorized_client.force_login(self.authorized_user)
         self.author_client = Client()
         self.author_client.force_login(self.author_user)
+        cache.clear()
 
     def test_edit_url(self):
         response = self.author_client.get(
