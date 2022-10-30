@@ -208,14 +208,16 @@ class FollowTest(TestCase):
 
     def test_follow_on_author(self):
         follow_count = Follow.objects.count()
-        Follow.objects.create(author=self.author, user=self.authorized)
+        Follow.objects.create(author=self.author,
+                              user=self.authorized)
         self.authorized_client.post(
             reverse('posts:profile_follow',
                     kwargs={'username': self.authorized}))
         self.assertEqual(Follow.objects.count(), follow_count + 1)
 
     def test_unfollow_on_author(self):
-        Follow.objects.create(author=self.author, user=self.authorized)
+        Follow.objects.create(author=self.author,
+                              user=self.authorized)
         unfollow_count = Follow.objects.count()
         self.authorized_client.post(
             reverse('posts:profile_unfollow',
@@ -225,10 +227,11 @@ class FollowTest(TestCase):
 
     def test_list_follower(self):
         Follow.objects.create(
-            author=self.author, user=self.authorized)
+            author=self.author,
+            user=self.authorized)
         response = self.author_client.get(
             reverse('posts:follow_index'))
-        self.assertIn(self.post, response.context['page_obj'])
+        self.assertIn(self.post, response.context['page_obj'].object_list)
 
     def test_list_unfollower(self):
         post = Post.objects.create(
