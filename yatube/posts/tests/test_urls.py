@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from django.test import TestCase, Client
+from django.urls import reverse
 
 from ..models import Post, Group, User
 
@@ -63,6 +64,7 @@ class URLTests(TestCase):
             with self.subTest(address=address):
                 response = self.guest_client.get(address).status_code
                 self.assertEqual(response, status)
+
 
     def test_guest_client_redirect(self):
         dict_page = {

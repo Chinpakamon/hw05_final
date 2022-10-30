@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-# from django.core.cache import cache
+from django.core.cache import cache
 
 from ..models import Post, Group, User, Follow
 
@@ -131,20 +131,20 @@ class PagesTest(TestCase):
             response.context['form'].fields['image'],
             forms.ImageField)
 
-    # def test_cache(self):
-    #     post = Post.objects.create(
-    #         text='Пост для проверки',
-    #         author=self.user)
-    #     content_add = self.authorized_client.get(
-    #         reverse('posts:index')).content
-    #     post.delete()
-    #     content_delete = self.authorized_client.get(
-    #         reverse('posts:index')).content
-    #     self.assertEqual(content_add, content_delete)
-    #     cache.clear()
-    #     content_cache_clear = self.authorized_client.get(
-    #         reverse('posts:index')).content
-    #     self.assertNotEqual(content_add, content_cache_clear)
+    def test_cache(self):
+        post = Post.objects.create(
+            text='Пост для проверки',
+            author=self.user)
+        content_add = self.authorized_client.get(
+            reverse('posts:index')).content
+        post.delete()
+        content_delete = self.authorized_client.get(
+            reverse('posts:index')).content
+        self.assertEqual(content_add, content_delete)
+        cache.clear()
+        content_cache_clear = self.authorized_client.get(
+            reverse('posts:index')).content
+        self.assertNotEqual(content_add, content_cache_clear)
 
 
 class TestPaginator(TestCase):
