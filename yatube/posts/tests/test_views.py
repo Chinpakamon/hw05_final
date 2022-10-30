@@ -235,11 +235,7 @@ class FollowTest(TestCase):
         self.assertEqual(len(response.context["page_obj"]), 1)
 
     def test_list_unfollower(self):
-        post = Post.objects.create(
-            author=self.author,
-            text='Текстовый текст')
-        Follow.objects.create(user=self.authorized,
-                              author=self.author)
         response = self.authorized_client.get(
             reverse('posts:follow_index'))
-        self.assertNotIn(post, response.context['page_obj'].object_list)
+        self.assertNotIn(self.post, response.context['page_obj'].object_list)
+        self.assertEqual(len(response.context["page_obj"]), 0)
