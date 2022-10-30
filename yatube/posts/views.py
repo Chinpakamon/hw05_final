@@ -15,7 +15,6 @@ def index(request):
                   {'page_obj': page_index, 'form': form})
 
 
-@cache_page(60 * 15)
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.selected_posts.select_related('author')
