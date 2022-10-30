@@ -30,19 +30,10 @@ class URLTests(TestCase):
         self.author_client = Client()
         self.author_client.force_login(self.author_user)
 
-    def test_page_template(self):
-        page_dict = {
-            '/': 'posts/index.html',
-            f'/group/{self.group.slug}/': 'posts/group_list.html',
-            f'/profile/{self.author_user}/': 'posts/profile.html',
-            f'/posts/{self.post.id}/': 'posts/post_detail.html',
-            f'/posts/{self.post.id}/edit/': 'posts/create_post.html',
-            '/create/': 'posts/create_post.html',
-        }
-        for address, template in page_dict.items():
-            with self.subTest(address=address):
-                response = self.author_client.get(address)
-                self.assertTemplateUsed(response, template)
+    def test_edit_url(self):
+        response = self.author_client.get(
+            f'/posts/{self.post.id}/edit/').status_code
+        self.assertEqual(response, 200)
 
     def test_page_access(self):
         dict_page = {
@@ -73,7 +64,42 @@ class URLTests(TestCase):
             response = self.authorized_client.get(address).status_code
             self.assertEqual(response, status)
 
-    def test_edit_url(self):
-        response = self.author_client.get(
-            f'/posts/{self.post.id}/edit/').status_code
-        self.assertEqual(response, 200)
+
+class URLTests_2(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.author = User.objects.create_user(
+            username='author_user')
+        cls.authorized = User.objects.create_user(
+            username='authorized_user')
+        cls.post = Post.objects.create(
+            text='Тестовый пост',
+            author=cls.author,
+        )
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test_slug',
+            description='Тестовое описание'
+        )
+
+    def setUp(self):
+        self.guest_client = Client()
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.authorized)
+        self.author_client = Client()
+        self.author_client.force_login(self.author)
+
+    def test_page_template(self):
+        page_dict = {
+            '/': 'posts/index.html',
+            f'/group/{self.group.slug}/': 'posts/group_list.html',
+            f'/profile/{self.author}/': 'posts/profile.html',
+            f'/posts/{self.post.id}/': 'posts/post_detail.html',
+            f'/posts/{self.post.id}/edit/': 'posts/create_post.html',
+            '/create/': 'posts/create_post.html',
+        }
+        for address, template in page_dict.items():
+            with self.subTest(address=address):
+                response = self.author_client.get(address)
+                self.assertTemplateUsed(response, template)
