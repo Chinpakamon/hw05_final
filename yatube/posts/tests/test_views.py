@@ -181,12 +181,13 @@ class TestPaginator(TestCase):
         ]
 
         for rev in url_pages:
-            self.assertEqual(len(
-                self.guest_client.get(rev).context['page_obj']),
-                first_page_posts)
-            self.assertEqual(len(
-                self.guest_client.get(rev + '?page=2').context['page_obj']),
-                second_page_posts)
+            with self.subTest(rev=rev):
+                self.assertEqual(len(
+                    self.guest_client.get(rev).context['page_obj']),
+                    first_page_posts)
+                self.assertEqual(len(
+                    self.guest_client.get(rev + '?page=2').context['page_obj']),
+                    second_page_posts)
 
 
 class FollowTest(TestCase):
@@ -205,6 +206,11 @@ class FollowTest(TestCase):
         self.authorized_client.force_login(self.authorized)
         self.author_client = Client()
         self.author_client.force_login(self.author)
+
+    def test_follow_author(self):
+        response = self.authorized_client.get(reverse("posts:follow_index"))
+        self.assertNotIn(self.post, response.context['page_obj'].object_list)
+        self.assertEqual(len(response.context["page_obj"]), 0)
 
     def test_follow_on_author(self):
         follow_count = Follow.objects.count()
@@ -229,13 +235,7 @@ class FollowTest(TestCase):
         Follow.objects.create(
             author=self.author,
             user=self.authorized)
-        response = self.author_client.get(
-            reverse('posts:follow_index'))
+        response = self.authorized_client.post(
+            reverse('posts:follow_index')
+        )
         self.assertIn(self.post, response.context['page_obj'].object_list)
-        self.assertEqual(len(response.context["page_obj"]), 1)
-
-    def test_list_unfollower(self):
-        response = self.authorized_client.get(
-            reverse('posts:follow_index'))
-        self.assertNotIn(self.post, response.context['page_obj'].object_list)
-        self.assertEqual(len(response.context["page_obj"]), 0)

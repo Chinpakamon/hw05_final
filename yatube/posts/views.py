@@ -10,7 +10,7 @@ from .utils import paginate
 @cache_page(60 * 15)
 def index(request):
     page_index = paginate(Post.objects.all(), request)
-    form = PostForm()
+    form = PostForm(request.POST or None)
     return render(request, 'posts/index.html',
                   {'page_obj': page_index, 'form': form})
 
@@ -20,7 +20,7 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.selected_posts.select_related('author')
     page_group_posts = paginate(posts, request)
-    form = PostForm()
+    form = PostForm(request.POST or None)
     context = {
         'group': group,
         'page_obj': page_group_posts,
@@ -35,7 +35,7 @@ def profile(request, username):
     user_post = author.posts.select_related('author')
     post_count = user_post.count()
     page_profile = paginate(user_post, request)
-    form = PostForm()
+    form = PostForm(request.POST or None)
     context = {
         'author': author,
         'post_count': post_count,
@@ -109,10 +109,15 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    post = Post.objects.filter(author=request.user)
+    following = Follow.objects.filter(
+        author__following__user=request.user)
+    post = (
+        Post.objects.filter(
+            author__following__user=request.user))
     page_obj = paginate(post, request)
     context = {
         'page_obj': page_obj,
+        'following': following,
     }
     return render(request, 'posts/follow.html', context)
 
