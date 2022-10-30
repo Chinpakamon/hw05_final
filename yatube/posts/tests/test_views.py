@@ -183,10 +183,12 @@ class TestPaginator(TestCase):
         for rev in url_pages:
             with self.subTest(rev=rev):
                 self.assertEqual(len(
-                    self.guest_client.get(rev).context['page_obj']),
+                    self.guest_client.get(
+                        rev).context['page_obj']),
                     first_page_posts)
                 self.assertEqual(len(
-                    self.guest_client.get(rev + '?page=2').context['page_obj']),
+                    self.guest_client.get(
+                        rev + '?page=2').context['page_obj']),
                     second_page_posts)
 
 
