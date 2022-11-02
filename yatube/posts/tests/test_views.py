@@ -221,7 +221,9 @@ class FollowTest(TestCase):
             reverse('posts:profile_follow',
                     kwargs={'username': self.authorized}))
         self.assertEqual(Follow.objects.count(), follow_count + 1)
-        self.assertTrue(Follow.objects.filter(user=self.authorized, author=self.author).exists())
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.authorized, author=self.author).exists())
 
     def test_unfollow_on_author(self):
         Follow.objects.create(author=self.author,
@@ -231,7 +233,9 @@ class FollowTest(TestCase):
             reverse('posts:profile_unfollow',
                     kwargs={'username': self.author.username}))
         self.assertEqual(Follow.objects.count(), unfollow_count - 1)
-        self.assertFalse(Follow.objects.filter(user=self.authorized, author=self.author).exists())
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.authorized, author=self.author).exists())
 
     def test_list_follower(self):
         Follow.objects.create(
