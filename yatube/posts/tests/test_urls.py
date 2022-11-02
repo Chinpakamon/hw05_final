@@ -77,5 +77,6 @@ class URLTests(TestCase):
             '/unexisting_page/': HTTPStatus.NOT_FOUND,
         }
         for address, status in dict_page.items():
-            response = self.authorized_client.get(address).status_code
-            self.assertEqual(response, status)
+            with self.subTest(address=address):
+                response = self.authorized_client.get(address).status_code
+                self.assertEqual(response, status)

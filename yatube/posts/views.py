@@ -37,7 +37,7 @@ def profile(request, username):
     form = PostForm(request.POST or None)
     following = None
     if request.user != author:
-        following = Follow.objects.filter(user=request.user).exists()
+        following = Follow.objects.filter(user__id=request.user.id).filter(author=author).exists()
     context = {
         'author': author,
         'post_count': post_count,
