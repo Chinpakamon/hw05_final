@@ -8,7 +8,9 @@ from django.test import Client, TestCase, override_settings
 
 from django.urls import reverse
 
+from .. import forms
 from ..models import Post, Group, User, Comment
+from ..forms import PostForm
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -23,6 +25,24 @@ class FormTest(TestCase):
             title='Тестовая группа',
             slug='test_slug',
             description='Тестовое описание'
+        )
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
+        cls.post = Post.objects.create(
+            text='Текст поста',
+            author=cls.user,
+            image=uploaded,
         )
 
     @classmethod
@@ -54,20 +74,19 @@ class FormTest(TestCase):
             post = Post.objects.latest('id')
             self.assertEqual(post.text, form_data['text'])
             self.assertEqual(post.author, self.user)
-            self.assertEqual(post.pk, form_data['group'])
+            self.assertEqual(post.group.id, form_data['group'])
+            self.assertEqual(post.image.read(), self.small_gif)
 
     def test_create_post(self):
         post_count = Post.objects.count()
         form_data = {
             'group': self.group.id,
             'text': 'Текст поста',
-            'image': self.uploaded,
-        }
+            'image': self.uploaded}
         response = self.authorized_client.post(
             reverse('posts:post_create'),
             data=form_data,
-            follow=True,
-        )
+            follow=True)
         self.assertRedirects(response,
                              reverse('posts:profile',
                                      kwargs={'username': self.user}))
@@ -79,11 +98,12 @@ class FormTest(TestCase):
         post = Post.objects.create(
             text='Текст поста для редактирования',
             group=self.group,
-            author=self.user
+            author=self.user,
         )
         form_data = {
             'text': 'Измененный текст',
             'group': self.group.id,
+            'image': self.uploaded,
         }
         response = self.authorized_client.post(
             reverse('posts:post_edit', kwargs={'post_id': post.id}),

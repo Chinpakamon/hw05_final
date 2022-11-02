@@ -9,7 +9,7 @@ from .utils import paginate
 
 @cache_page(60 * 15)
 def index(request):
-    page_index = paginate(Post.objects.all(), request)
+    page_index = paginate(Post.objects.select_related('group'), request)
     form = PostForm(request.POST or None)
     return render(request, 'posts/index.html',
                   {'page_obj': page_index, 'form': form})
@@ -35,11 +35,15 @@ def profile(request, username):
     post_count = user_post.count()
     page_profile = paginate(user_post, request)
     form = PostForm(request.POST or None)
+    following = None
+    if request.user != author:
+        following = Follow.objects.filter(user=request.user).exists()
     context = {
         'author': author,
         'post_count': post_count,
         'page_obj': page_profile,
         'form': form,
+        'following': following,
     }
     return render(request, 'posts/profile.html', context)
 
@@ -63,7 +67,7 @@ def post_detail(request, post_id):
 
 @login_required
 def post_create(request):
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None, files=request.FILES or None)
     if request.method == 'POST':
         if not form.is_valid():
             return render(request, 'posts/create_post.html', {'form': form})
@@ -133,6 +137,5 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
     follow_query = Follow.objects.filter(author=author, user=request.user)
-    if follow_query.exists():
-        follow_query.delete()
+    follow_query.delete()
     return redirect('posts:profile', username=username)

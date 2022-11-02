@@ -1,13 +1,7 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
 {% load static %}
-{% block title %}
-  {% if is_edit %}
-    Редактирование записи
-  {% else %}
-    Новая запись
-  {% endif %}
-{% endblock %}
+{% block title %}{% if is_edit %} Редактирование записи {% else %} Новая запись {% endif %}{% endblock %}
 {% block content %}
 <div class="features">
   <div class="container py-5">
