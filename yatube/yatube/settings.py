@@ -11,8 +11,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '[::1]',
     'testserver',
-    'www.Chinpakamon.pythonanywhere.com',
-    'Chinpakamon.pythonanywhere.com',
+    'www.anmeboi.pythonanywhere.com',
+    'anmeboi.pythonanywhere.com',
 
 ]
 
